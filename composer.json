@@ -40,7 +40,6 @@
 		},
 		"psr-4": {
 			"stradivari\\": ["vendor/stradivari/lib/"]
-		},
-		"files": ["vendor/stradivari/core/functions.php"]
+		}
 	}
 }

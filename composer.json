@@ -19,6 +19,20 @@
 		"openlss/lib-array2xml": "dev-master",
 		"arya/phantomjs_stradivari_fork": "dev-master"
 	},
+	"repositories": [
+		{
+			"type": "package",
+			"package": {
+			"name": "arya/phantomjs_stradivari_fork",
+			"version": "dev-master",
+				"source": {
+					"type": "git",
+					"url": "https://github.com/forzi/phantomjs_stradivari_fork.git",
+					"reference": "master"
+				}
+			}
+		}
+	],
 	"autoload": {
 		"psr-0": {
 			"": "vendor/"

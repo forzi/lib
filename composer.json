@@ -14,7 +14,7 @@
 	],
 	"require": {
 		"php": ">=5.4.0",
-		"keboola/csv": "dev-master",
+		"keboola/csv": ">=1.1.1 ",
 		"symfony/yaml": "2.5.*@dev",
 		"openlss/lib-array2xml": "dev-master",
 		"arya/phantomjs_stradivari_fork": "dev-master"

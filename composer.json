@@ -3,7 +3,7 @@
 	"description": "xml, json, csv conversion",
 	"version": "1.0.0",
 	"license": "GPL-3.0",
-	"keywords": ["project", "addons". "libraries"],
+	"keywords": ["project", "addons", "libraries"],
 	"authors": [
         {
             "name": "Alexey Penkov",

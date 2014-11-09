@@ -1,0 +1,8 @@
+/*
+*
+* @product		php stradivari/enum
+* @license		GNU GPL v3
+* @author			Alexey Penkov <forzi@mail333.com> 
+* @copyright	2013 Alexey Penkov
+*
+*/

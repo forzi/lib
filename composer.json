@@ -35,9 +35,6 @@
 	],
 	"minimum-stability": "dev",
 	"autoload": {
-		"psr-0": {
-			"": "vendor/"
-		},
 		"psr-4": {
 			"stradivari\\": ["vendor/stradivari/lib/"]
 		}

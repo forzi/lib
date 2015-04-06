@@ -1,20 +1,19 @@
 <?
 namespace stradivari\interceptor {
-    class InterceptorHandler implements \ArrayAccess {
+    class InterceptorHandler {
         private static $instance = null;
         private $defaultSessionHandler = 'files';
-        private $closures = array(
-            'error' => null,
-            'exception' => null,
-            'session' => null
-        );
-        private $strategies = array(
-            'tick' => array(),
-            'shutdown' => array()
-        );
         private $fatalErrorClosure = null;
+        private $closures = array(
+			'tick' => null,
+			'shutdown' => null,
+			'error' => null,
+			'exception' => null
+        );
         private function __construct() {
             $this->defaultSessionHandler = ini_get('session.save_handler');
+            register_tick_function(array($this, 'tickHandler'));
+            register_shutdown_function(array($this, 'shutdownHandler'));
         }
         private function __clone() {}
         public function __wakeup() {
@@ -26,69 +25,68 @@ namespace stradivari\interceptor {
             }
             return self::$instance;
         }
-        public function offsetExists($offset) {
-            return array_key_exists($offset, $this->closures);
+        private function isAnyHandler($name) {
+			return $this->closures[$name] && $this->closures[$name]->count();
+		}
+		private function executeAllHandlers($name) {
+			if ( !$this->isAnyHandler($name) ) {
+				return;
+			}
+			foreach($this->closures[$name] as $function) {
+				call_user_func($function);
+			}
+		}
+        private function tickHandler() {
+			$this->executeAllHandlers('tick');
+		}
+        public function shutdownHandler() {
+			$error = error_get_last();
+			$errorTypes = array(E_ERROR, E_PARSE, E_COMPILE_ERROR, E_CORE_ERROR);
+			if ( isset($error['type']) && in_array($error['type'], $errorTypes) && $this->isAnyHandler('error') ) {
+				call_user_func(array($this, 'errorHandler'), $error['type'], $error['message'], $error['file'], $error['line']);
+			}
+			$this->executeAllHandlers('shutdown');
+		}
+		private function errorHandler($errno, $errstr, $errfile = '', $errline = 0, $errcontext = array()) {
+			foreach($this->closures['error'] as $function) {
+				call_user_func($function, $errno, $errstr, $errfile, $errline, $errcontext);
+			}
+		}
+        private function exceptionHandler(\Exception $exception) {
+			foreach($this->closures['exception'] as $function) {
+				call_user_func($function, $exception);
+			}
+		}
+		public function __get($name) {
+			if ( !$this->closures[$name] ) {
+				$this->closures[$name] = new Closures($this, $name);
+			}
+            return $this->closures[$name];
         }
-        public function offsetGet($offset) {
-            if ( array_key_exists($offset, $this->strategies) ) {
-                if ( !$this->strategies[$offset] ) {
-                    $className = '\\' . __NAMESPACE__ . '\\' . ucfirst($offset) . 'Handler';
-                    $this->strategies[$offset] = $className::getInstance();
-                }
-                return $this->strategies[$offset];
-            }
-            return $this->closures[$offset]->closure;
-        }
-        public function offsetSet($offset, $value) {
-            foreach ( array('closures', 'strategies') as $handlerType ) {
-                if ( array_key_exists($offset, $this->$handlerType) ) {
-                    $method = $handlerType . 'Set';
-                    $this->$method($offset, $value);
-                    return;
-                }
-            }
+        public function __set($name, $value) {
+			if ( $name == 'session' ) {
+				$this->setSessionHandler($value);
+				return;
+			}
+			if ( $value == null ) {
+				$this->closures[$name] = null;
+				$this->changeHandler($name);
+				return;
+			}
             throw new exception\CanNotSet();
         }
-        private function closuresSet($offset, $value) {
-            $method = 'set' . ucfirst($offset) . 'Handler';
-            $this->$method($value);
-        }
-        private function strategiesSet($offset, $value) {
-            $strategie = $this->strategies[$offset];
-            foreach ( $strategie as $key => $closure ) {
-                $strategie[$key] = null;
-            }
-        }
-        private function setErrorHandler(callable $value = null) {
-            $this->closures['error'] = $value;
-            set_error_handler($value);
-            $this->setFatalErrorHandler($value);
-        }
-        private function setFatalErrorHandler($value) {
-            if ( !$this->fatalErrorClosure ) {
-                $this->fatalErrorClosure = new RemovableClosureCreator();
-            }
-            if ( $value ) {
-                $this->fatalErrorClosure->closure = $this->castFatalErrorHandler($value);
-                register_shutdown_function($this->fatalErrorClosure->closure);
-            } else {
-                $this->fatalErrorClosure->closure = null;
-            }
-        }
-        private function castFatalErrorHandler($value) {
-            $result = function() use ( $value ) {
-                $error = error_get_last();
-				$errorTypes = array(E_ERROR, E_PARSE, E_COMPILE_ERROR, E_CORE_ERROR);
-                if (  isset($error) && in_array($error['type'], $errorTypes) ) {
-                    return call_user_func($value, $error["type"], $error["message"], $error["file"], $error["line"], array());
-                }
-            };
-            return $result;
-        }
-        private function setExceptionHandler(callable $value = null) {
-            $this->closures['exception'] = $value;
-            set_exception_handler($value);
-        }
+        public function changeHandler($name) {
+			if ( $name == 'error' || $name == 'exception' ) {
+				if ( $this->isAnyHandler($name) ) {
+					$handler = function() use($name) {
+						call_user_func_array(array($this, "{$name}Handler"), func_get_args());
+					};
+				} else {
+					$handler = null;
+				}
+				call_user_func("set_{$name}_handler", $handler);
+			}
+		}
         private function setSessionHandler(\SessionHandlerInterface $value = null) {
             if ( $value ) {
                 session_set_save_handler($value);
@@ -96,14 +94,6 @@ namespace stradivari\interceptor {
                 ini_set('session.save_handler', $this->defaultSessionHandler);
             }
         }
-        public function offsetUnset($offset) {
-            $this[$offset] = null;
-        }
-        public function __get($name) {
-            return $this->offsetGet($name);
-        }
-        public function __set($name, $value) {
-            return $this->offsetSet($name, $value);
-        }
+        
     }
 }

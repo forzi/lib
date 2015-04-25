@@ -15,23 +15,8 @@
 	"require": {
 		"keboola/csv": ">=1.1.1 ",
 		"symfony/yaml": "2.5.*@dev",
-		"openlss/lib-array2xml": "dev-master",
-		"arya/phantomjs_stradivari_fork": "dev-master"
+		"openlss/lib-array2xml": "dev-master"
 	},
-	"repositories": [
-		{
-			"type": "package",
-			"package": {
-			"name": "arya/phantomjs_stradivari_fork",
-			"version": "dev-master",
-				"source": {
-					"type": "git",
-					"url": "https://github.com/forzi/phantomjs_stradivari_fork.git",
-					"reference": "master"
-				}
-			}
-		}
-	],
 	"minimum-stability": "dev",
 	"autoload": {
 		"psr-4": {

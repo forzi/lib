@@ -1,9 +1,0 @@
-type: pdf
-no_cache: false
-timeout: 5
-page:
-    page_setup:
-        paperSize:
-            format: A4
-            orientation: portrait
-        zoomFactor: 0.92

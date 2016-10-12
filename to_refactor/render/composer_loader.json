@@ -1,0 +1,68 @@
+{
+	"name": "scs/render-installer",
+	"description": "phantomJS render",
+	"version": "0.2",
+	"license": "GPL-3.0",
+	"keywords": ["phantomJS", "pdf", "jpg", "png", "render"],
+	"authors": [
+        {
+            "name": "Alexey Penkov",
+            "email": "forzi@mail333.com",
+            "homepage": "https://github.com/forzi/",
+            "role": "Developer"
+        },
+        {
+            "name": "Mikhail Yatsishin",
+            "email": "m.yatsishin@smcs.com.ua",
+            "homepage": "",
+            "role": "Developer"
+        }
+    ],
+    "autoload": {
+        "psr-0": { "": ["", "vendor"] }
+    },
+	"require": {
+        "php":">=5.3.0",
+        "scs/render-smart": "dev-render_js_refactoring",
+        "ariya/phantomjs": "dev-master"
+    },
+    "repositories": [
+		{
+			"type": "package",
+			"package": {
+			"name": "ariya/phantomjs",
+			"version": "dev-master",
+				"source": {
+					"type": "git",
+					"url": "https://github.com/ariya/phantomjs.git",
+					"reference": "master"
+				}
+			}
+		},
+		{
+			"type": "package",
+			"package": {
+			"name": "scs/render-smart",
+			"version": "dev-render_js_refactoring",
+				"source": {
+					"type": "git",
+					"url": "git@gitlab.smcs.com.ua:liongroup/render-smart.git",
+					"reference": "master"
+				}
+			}
+		}
+    ],
+    "scripts": {
+        "post-install-cmd": [
+            "git --git-dir=vendor/ariya/phantomjs/.git --work-tree=vendor/ariya/phantomjs/ fetch https://github.com/Vitallium/phantomjs.git fix-WOFF-file-support:woff",
+            "git --git-dir=vendor/ariya/phantomjs/.git --work-tree=vendor/ariya/phantomjs/ cherry-pick woff",
+            "git --git-dir=vendor/ariya/phantomjs/.git --work-tree=vendor/ariya/phantomjs/ fetch https://github.com/Morgul/phantomjs.git master:morgul",
+            "git --git-dir=vendor/ariya/phantomjs/.git --work-tree=vendor/ariya/phantomjs/ cherry-pick 37d85cffa6162ece62a7538de87eac5827221185",
+            "cd vendor/ariya/phantomjs/ && ./build.sh --confirm"
+        ],
+        "post-update-cmd": [
+            "cd vendor/ariya/phantomjs/ && ./build.sh --confirm"
+        ]
+    },
+    "prefer-stable": false
+}

@@ -1,0 +1,62 @@
+no_cache: <true | false>
+timeout: <timeout>
+default_headers: <headers_object>
+page:
+    type: <pdf | gif | jpg | jpeg | png | txt | html>
+    resources:
+        <file_name1>:
+            url: <url | path> | body: <b64_content>
+            headers: <headers_object>
+            data: <data_object>
+        ...
+    content:
+        url: <url | path> | body: <b64_content>
+        headers: <headers_object>
+        data: <data_object>
+    header:
+        default:
+            url: <url | path> | body: <b64_content>
+            headers: <headers_object>
+            data: <data_object>
+        first:
+            url: <url | path> | body: <b64_content>
+            headers: <headers_object>
+            data: <data_object>
+        even:
+            url: <url | path> | body: <b64_content>
+            headers: <headers_object>
+            data: <data_object>
+        odd:
+            url: <url | path> | body: <b64_content>
+            headers: <headers_object>
+            data: <data_object>
+    footer:
+        default:
+            url: <url | path> | body: <b64_content>
+            headers: <headers_object>
+            data: <data_object>
+        first:
+            url: <url | path> | body: <b64_content>
+            headers: <headers_object>
+            data: <data_object>
+        even:
+            url: <url | path> | body: <b64_content>
+            headers: <headers_object>
+            data: <data_object>
+        odd:
+            url: <url | path> | body: <b64_content>
+            headers: <headers_object>
+            data: <data_object>
+    page_setup:
+        'viewportSize': {width: <...>, height: <...>}
+        'paperSize':
+            width: <...>,
+            height: <...>,
+            format: < 'A3' | 'A4' | 'A5' | 'Legal' | 'Letter' | 'Tabloid' >
+            orientation: < portrait | landscape >
+            border: <...>,
+            margin: <...> | {top: <...>, left: <...>, right: <...>, bottom: <...>}
+        'clipRect': {top: <...>, left: <...>, width: <...>, height: <...>}
+        'zoomFactor': 0.92  // определено эмпирическим путем]
+        'headerHeight': <...>
+        'footerHeight': <...>

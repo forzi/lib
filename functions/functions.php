@@ -6,7 +6,17 @@
  * Time: 23:28
  */
 
-
+if (!function_exists('d')) {
+    function d($message = '', $break = 1) {
+		#throw new Exception();
+        if ( $message !== '' ) {
+            echo '<pre>' . print_r($message, 1) . '</pre>' . "\n";
+        }
+        if ( $break ) {
+            die();
+        }
+    }
+}
 
 if (!function_exists('getallheaders'))
 {
@@ -23,3 +33,4 @@ if (!function_exists('getallheaders'))
         return $headers;
     }
 }
+

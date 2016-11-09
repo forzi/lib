@@ -33,7 +33,8 @@ class EventClassArray extends ClassArray {
 			return;
         } 
 		if (is_callable($this->beforeSet)) {
-		    $this->beforeSet($this, $key, $value);
+			$beforeSet = $this->beforeSet;
+		    $beforeSet($this, $key, $value);
 		}
 		if (is_array($value) || $value instanceof \Traversable) {			
             $this->storage[$key] = $this->createSubclass($value);
@@ -41,7 +42,8 @@ class EventClassArray extends ClassArray {
             $this->storage[$key] = $value;
         }
 		if (is_callable($this->onSet)) {
-		    $this->onSet($this, $key, $value);
+			$onSet = $this->onSet;
+		    $onSet($this, $key, $value);
 		}
     }
     public function offsetUnset($key) {
@@ -49,11 +51,13 @@ class EventClassArray extends ClassArray {
 			return;
 		}
 		if (is_callable($this->beforeUnset)) {
-			$this->beforeUnset($this, $key);
+			$beforeUnset = $this->beforeUnset;
+			$beforeUnset($this, $key);
 		}
 		unset($this->storage[$key]);
 		if (is_callable($this->onUnset)) {
-			$this->onUnset($this, $key);
+			$onUnset = $this->onUnset;
+			$onUnset($this, $key);
 		}
     }
 }

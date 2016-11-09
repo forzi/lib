@@ -46,7 +46,7 @@ class ClassArray implements \ArrayAccess, \Iterator {
             if ( strpos($key, '__list') === false ) {
                 return null;
             } else {
-                return array();
+                return [];
             }
         }
         return $this->storage[$key];

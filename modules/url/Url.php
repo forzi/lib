@@ -2,6 +2,7 @@
 namespace stradivari\url;
 
 use stradivari\class_array\ClassArray;
+use stradivari\class_array\EventClassArray;
 
 class Url {
     const DEFAULT_SCHEME = 'http';
@@ -36,9 +37,11 @@ class Url {
         $this->query    = isset($arguments['query']) && $arguments['query'] ? $arguments['query'] : '';
         $this->fragment = isset($arguments['fragment']) && $arguments['fragment'] ? $arguments['fragment'] : '';
         $this->part     = $this->query ? $this->path . '?' . $this->query : $this->path;
-        $this->get = $this->get ? $this->get->init() : new GetParams($this);
+		
+		parse_str($this->url->query, $data);
+        $this->get = $this->get ? $this->get->init($data) : new EventClassArray($data, null, null, [$this, 'changedGetParams'], null, [$this, 'changedGetParams']);
     }
-
+	
     protected function getUrl($encode = 0) {
         $scheme         = $this->scheme ? $this->scheme . '://' : '';
 
@@ -100,7 +103,7 @@ class Url {
             $this->$name = $value;
         }
         $this->part  = $this->query ? $this->path . '?' . $this->query : $this->path;
-        $this->get = $this->get ? $this->get->init() : new GetParams($this);
+        $this->get = $this->get ? $this->get->init() : new EventClassArray($data, null, null, [$this, 'changedGetParams'], null, [$this, 'changedGetParams']);
     }
 
     public function __toString() {
@@ -143,5 +146,8 @@ class Url {
         $this->__set('url', $this->getUrl(static::DECODE_URL));
         return $this;
     }
-
+	
+	public function changedGetParams() {
+		$this->query = http_build_query($this->get->toArray());
+	}
 }

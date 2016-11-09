@@ -2,17 +2,21 @@
 namespace stradivari\class_array;
 
 class ClassArray implements \ArrayAccess, \Iterator {
-    protected $storage = array();
-
-    public function __construct($data = null) {
-        self::init($data);
+    protected $storage = [];
+	
+	protected function createSubclass($data) {
+		return new static($data);
+	}
+	
+    public function __construct($data = []) {
+		$this->init($data);
     }
     public function init($data = []) {
         $this->storage = [];
-        if (is_array($data) || $data instanceof \Traversable) {
+        if ($data && (is_array($data) || $data instanceof \Traversable)) {
             foreach ($data as $key => &$subData) {
                 if (is_array($subData) || $subData instanceof \Traversable) {
-                    $subData = new ClassArray($subData);
+                    $subData = $this->createSubclass($subData);
                 }
                 $this->storage[$key] = $subData;
             }
@@ -38,7 +42,7 @@ class ClassArray implements \ArrayAccess, \Iterator {
         return true;
     }
     public function offsetGet($key) {
-        if ( !isset($this->storage[$key]) ) {
+        if (!isset($this->storage[$key])) {
             if ( strpos($key, '__list') === false ) {
                 return null;
             } else {
@@ -51,27 +55,31 @@ class ClassArray implements \ArrayAccess, \Iterator {
         $key = $key === null ? count($this->storage) : $key;
         if ($value === null) {
             $this->offsetUnset($key);
-        } else if ($value instanceof ClassArray) {
-            $this->storage[$key] = clone $value;
-        } else if (is_array($value) || $value instanceof \Traversable) {
-            $this->storage[$key] = new ClassArray($value);
+			return;
+        }
+		if (is_array($value) || $value instanceof \Traversable) {			
+            $this->storage[$key] = $this->createSubclass($value);
         } else {
             $this->storage[$key] = $value;
         }
     }
     public function offsetUnset($key) {
-        if ( isset($this->storage[$key]) ) {
-            unset($this->storage[$key]);
-        }
+        if (!isset($this->storage[$key])) {
+			return;
+		}
+		unset($this->storage[$key]);
     }
     public function toArray() {
         $array = [];
         foreach ($this->storage as $key => $val) {
-            if ($val instanceof self) {
+            if ($val instanceof static) {
                 $val = $val->toArray();
             }
             $array[$key] = $val;
         }
         return $array;
     }
+	public function __get($name) {
+		return $this->$name;
+	}
 }
